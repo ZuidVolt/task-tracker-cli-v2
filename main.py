@@ -22,15 +22,22 @@ def add_task(new_task: Task, task_list: list[Task]) -> None:
 
 
 def write_to_json_file(data: list[Task], path: Path) -> None:
-    json_str = json.dumps(data, indent=4)
-    with Path.open(path, "w") as file:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    json_str = json.dumps(data, indent=4, default=str)  # default=str helps with datetime objects
+    with path.open("w") as file:
         file.write(json_str)
 
 
 def read_from_json_file(path: Path) -> list[Task]:
-    with Path.open(path, "r") as file:
-        json_str = file.read()
-        return list[Task](json.loads(json_str))
+    try:
+        if not path.exists():
+            return []
+        with Path.open(path, "r") as file:
+            json_str = file.read()
+            return list[Task](json.loads(json_str))
+    except (json.JSONDecodeError, OSError) as e:
+        print(f"Error reading tasks: {e}")
+        return []
 
 
 def create_task_id_list(current_list: list[Task]) -> list[int]:
@@ -55,7 +62,9 @@ def update_task_description(current_list: list[Task], task_id: int, description:
 
 
 def check_id_value(current_id_list: list[int], index_id: int) -> bool:
-    return index_id < max(current_id_list)
+    if not current_id_list:
+        return False
+    return index_id in current_id_list
 
 
 def update_task_status(current_list: list[Task], task_id: int, new_status: str) -> None:
