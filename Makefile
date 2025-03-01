@@ -1,4 +1,4 @@
-PYTHON_FILES := .
+PYTHON_FILES := main.py models.py
 
 .PHONY: format ruff-check mypy-strict pyright-check check coverage security radon radon-mi vulture compile-dep
 

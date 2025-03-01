@@ -7,6 +7,11 @@ import json
 JSON_PATH: Path = Path("data.json")
 
 
+def check_json_file_exists() -> None:
+    if not JSON_PATH.exists():
+        Path.touch(JSON_PATH)
+
+
 def create_task(task_id: int, description: str) -> Task:
     return {
         "id": task_id,
@@ -23,7 +28,7 @@ def append_task(new_task: Task, task_list: list[Task]) -> None:
 
 def write_to_json_file(data: list[Task], path: Path) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    json_str = json.dumps(data, indent=4, default=str)  # default=str helps with datetime objects
+    json_str = json.dumps(data, indent=4, default=str)
     with path.open("w") as file:
         file.write(json_str)
 
@@ -90,25 +95,57 @@ def check_id_value(current_id_list: list[int], index_id: int) -> bool:
     return index_id in current_id_list
 
 
-def list_tasks(current_list: list[Task], list_format: str = "all") -> None:  # noqa: C901
+def list_tasks(current_list: list[Task], list_format: str = "all") -> None:
+    filtered_tasks = []
+    # Filter tasks based on list_format
     match list_format:
         case "all":
-            for task in current_list:
-                print(f"{task['id']} - {task['description']} - {task['status']}")
+            filtered_tasks = current_list
+            status_display = "ALL TASKS"
         case "done":
-            for task in current_list:
-                if task["status"] == "done":
-                    print(f"{task['id']} - {task['description']} - {task['status']}")
+            filtered_tasks = [task for task in current_list if task["status"] == "done"]
+            status_display = "COMPLETED TASKS"
         case "in-progress":
-            for task in current_list:
-                if task["status"] == "in-progress":
-                    print(f"{task['id']} - {task['description']} - {task['status']}")
+            filtered_tasks = [task for task in current_list if task["status"] == "in-progress"]
+            status_display = "IN-PROGRESS TASKS"
         case "todo":
-            for task in current_list:
-                if task["status"] == "todo":
-                    print(f"{task['id']} - {task['description']} - {task['status']}")
+            filtered_tasks = [task for task in current_list if task["status"] == "todo"]
+            status_display = "TODO TASKS"
         case _:
-            print(f"Unknown list type: {args.list[0]}")
+            print(f"Unknown list type: {list_format}")
+            return
+    if not filtered_tasks:
+        print(f"No {list_format} tasks found.")
+        return
+
+    # Calculate width based on the longest task description
+    max_desc_length = max(len(task["description"]) for task in filtered_tasks) if filtered_tasks else 10
+    max_desc_length = min(max_desc_length, 50)  # Cap at 50 chars to prevent overly wide output
+
+    id_width = 4
+    desc_width = max_desc_length + 2
+    status_width = 12
+    total_width = id_width + desc_width + status_width + 4  # +4 for separators
+
+    # Print header
+    print("\n" + "=" * total_width)
+    print(f" {status_display} ".center(total_width))
+    print("=" * total_width)
+    print(f"{'ID':<{id_width}} | {'DESCRIPTION':<{desc_width}} | {'STATUS':<{status_width}}")
+    print("-" * total_width)
+
+    # Print tasks
+    for task in filtered_tasks:
+        description = task["description"]
+        if len(description) > max_desc_length:
+            description = description[: max_desc_length - 3] + "..."
+        status = task["status"]
+        status_formatted = status.upper()
+        print(f"{task['id']:<{id_width}} | {description:<{desc_width}} | {status_formatted:<{status_width}}")
+    # Print footer
+    print("-" * total_width)
+    print(f"Total: {len(filtered_tasks)} task(s)")
+    print()
 
 
 parser = argparse.ArgumentParser(
@@ -121,6 +158,7 @@ task_management = parser.add_argument_group("Task Management")
 task_viewing = parser.add_argument_group("Task Viewing")
 status_management = parser.add_argument_group("Status Management")
 
+# Task Management arguments
 _ = task_management.add_argument(
     "--add",
     "-a",
@@ -187,6 +225,7 @@ args = parser.parse_args()
 
 
 def main() -> None:  # noqa: C901 PLR0915
+    check_json_file_exists()
     task_list: list[Task] = read_from_json_file(JSON_PATH)
     task_id_list: list[int] = create_task_id_list(task_list)
     if args.add:
