@@ -56,23 +56,6 @@ def generate_task_id(id_list: list[int]) -> int:
     return max(id_list) + 1
 
 
-def delete_task(current_list: list[Task], task_id: int) -> bool:
-    for i, task in enumerate(current_list):
-        if task["id"] == task_id:
-            del current_list[i]
-            return True
-    print(f"Task with ID {task_id} not found in the current list.")
-    return False
-
-
-def update_all_task_ids(current_list: list[Task], removed_task_id: int) -> None:
-    if not current_list:
-        return
-    for task in current_list:
-        if task["id"] > removed_task_id:
-            task["id"] -= 1
-
-
 def update_task_description(current_list: list[Task], task_id: int, description: str) -> None:
     for task in current_list:
         if task["id"] == task_id:
@@ -89,10 +72,36 @@ def update_task_status(current_list: list[Task], task_id: int, new_status: str) 
             task["updated_at"] = datetime.now().isoformat()
 
 
+def update_all_task_ids(current_list: list[Task], removed_task_id: int) -> None:
+    if not current_list:
+        return
+    for task in current_list:
+        if task["id"] > removed_task_id:
+            task["id"] -= 1
+
+
+def delete_task(current_list: list[Task], task_id: int) -> bool:
+    for i, task in enumerate(current_list):
+        if task["id"] == task_id:
+            del current_list[i]
+            return True
+    print(f"Task with ID {task_id} not found in the current list.")
+    return False
+
+
 def check_id_value(current_id_list: list[int], index_id: int) -> bool:
     if not current_id_list:
         return False
     return index_id in current_id_list
+
+
+def change_task_progress(task_list: list[Task], task_id_list: list[int], task_id: int, status_str: str) -> None:
+    try:
+        if not check_id_value(task_id_list, task_id):
+            raise ValueError("Invalid task ID")
+        update_task_status(task_list, task_id, status_str)
+    except IndexError:
+        print("Invalid task ID")
 
 
 def list_tasks(current_list: list[Task], list_format: str = "all") -> None:
@@ -224,7 +233,7 @@ _ = status_management.add_argument(
 args = parser.parse_args()
 
 
-def main() -> None:  # noqa: C901 PLR0915
+def main() -> None:  # noqa: C901
     check_json_file_exists()
     task_list: list[Task] = read_from_json_file(JSON_PATH)
     task_id_list: list[int] = create_task_id_list(task_list)
@@ -259,23 +268,9 @@ def main() -> None:  # noqa: C901 PLR0915
         except IndexError:
             print("Invalid list type (must be a string)")
     elif args.mark_in_progress:
-        try:
-            task_id = int(args.mark_in_progress[0])
-            if not check_id_value(task_id_list, task_id):
-                raise ValueError("Invalid task ID")
-            status_str = "in-progress"
-            update_task_status(task_list, task_id, status_str)
-        except IndexError:
-            print("Invalid task ID")
+        change_task_progress(task_list, task_id_list, int(args.mark_in_progress[0]), "in-progress")
     elif args.mark_done:
-        try:
-            task_id = int(args.mark_done[0])
-            if not check_id_value(task_id_list, task_id):
-                raise ValueError("Invalid task ID")
-            status_str = "done"
-            update_task_status(task_list, task_id, status_str)
-        except IndexError:
-            print("Invalid task ID")
+        change_task_progress(task_list, task_id_list, int(args.mark_done[0]), "done")
     else:
         list_tasks(task_list)
     write_to_json_file(task_list, JSON_PATH)
