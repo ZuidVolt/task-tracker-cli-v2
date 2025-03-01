@@ -13,13 +13,10 @@ ruff-check:
 mypy-check:
 	mypy $(PYTHON_FILES)
 
-pyright-check:
-	pyright $(PYTHON_FILES)
-
 basedpyright-check:
 	basedpyright $(PYTHON_FILES)
 
-check: format ruff-check mypy-check
+check: format ruff-check mypy-check basedpyright-check
 
 # Additional analysis checks (not Enforced)
 coverage:

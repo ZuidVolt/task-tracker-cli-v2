@@ -22,11 +22,8 @@ preview = true
 strict = true
 
 [tool.pyright]
-pythonVersion = "3.10"
-reportUnusedCallResult = false
-reportAny = false
-reportExplicitAny = false
-exclude = ["./"]
+typeCheckingMode = "strict"
+pythonVersion = "3.13"
 
 [tool.radon]
 cc = ["-a", "-nc", "-s"]
