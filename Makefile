@@ -7,13 +7,13 @@ PYTHON_FILES := main.py models.py
 format:
 	ruff format --preview --line-length 120 .
 
-ruff-check:
+ruff-check: # linter
 	ruff check --fix --unsafe-fixes $(PYTHON_FILES)
 
-mypy-check:
+mypy-check: # main type checker
 	mypy $(PYTHON_FILES)
 
-basedpyright-check:
+basedpyright-check: # Secondary type checker for extra rules
 	basedpyright $(PYTHON_FILES)
 
 check: format ruff-check mypy-check basedpyright-check
