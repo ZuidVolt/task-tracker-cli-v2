@@ -1,6 +1,6 @@
 PYTHON_FILES := main.py models.py
 
-.PHONY: format ruff-check mypy-strict pyright-check check coverage security radon radon-mi vulture compile-dep
+.PHONY: format ruff-check mypy-strict basedpyright-check check radon radon-mi vultures
 
 # main check (Enforced before commit)
 
@@ -19,13 +19,6 @@ basedpyright-check:
 check: format ruff-check mypy-check basedpyright-check
 
 # Additional analysis checks (not Enforced)
-coverage:
-	coverage run -m pytest
-	coverage report -m
-	coverage html
-
-security:
-	ruff check --extend-select S --fix
 
 radon: # cyclomatic complexity
 	radon cc -a -nc -s $(PYTHON_FILES)
@@ -35,7 +28,3 @@ radon-mi: # maintainability index
 
 vulture: # unused code
 	vulture $(PYTHON_FILES) --min-confidence 80 --sort-by-size
-
-# Management
-compile-dep:
-	uv pip compile pyproject.toml -o requirements.txt
