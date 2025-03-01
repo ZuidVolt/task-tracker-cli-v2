@@ -79,7 +79,7 @@ def update_task_status(current_list: list[Task], task_id: int, new_status: str) 
     for task in current_list:
         if task["id"] == task_id:
             if task["status"] == new_status:
-                print(f"the staus is alreday {new_status}")
+                print(f"the status is already {new_status}")
             task["status"] = new_status
             task["updated_at"] = datetime.now().isoformat()
 
@@ -141,7 +141,13 @@ _ = task_management.add_argument(
 )
 
 _ = task_management.add_argument(
-    "--delete", "-d", help="Delete a task by its ID", nargs=1, type=int, default=None, metavar="ID"
+    "--delete",
+    "-d",
+    help="Delete a task by its ID",
+    nargs=1,
+    type=int,
+    default=None,
+    metavar="ID",
 )
 
 # Task Viewing arguments
