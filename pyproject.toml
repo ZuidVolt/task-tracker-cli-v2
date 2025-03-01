@@ -1,0 +1,99 @@
+[project]
+name = "task-tracker-cli-v2"
+version = "0.1.0"
+description = ""
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = []
+
+[project.license]
+text = "Apache License"
+
+[project.optional-dependencies]
+dev = ["ruff", "mypy", "radon", "vulture"]
+
+[tool.ruff]
+line-length = 120
+fix = true
+unsafe-fixes = true
+preview = true
+
+[tool.mypy]
+strict = true
+
+[tool.pyright]
+pythonVersion = "3.10"
+reportUnusedCallResult = false
+reportAny = false
+reportExplicitAny = false
+exclude = ["./"]
+
+[tool.radon]
+cc = ["-a", "-nc", "-s"]
+mi = ["-s"]
+
+[tool.ruff.lint]
+preview = true
+select = [
+    "F",
+    "W",
+    "N",
+    "C90",
+    "B",
+    "UP",
+    "RET",
+    "SIM",
+    "RUF",
+    "NPY",
+    "PD",
+    "ARG",
+    "TID",
+    "PTH",
+    "Q",
+    "ISC",
+    "PIE",
+    "YTT",
+    "ASYNC",
+    "C4",
+    "T10",
+    "A",
+    "COM",
+    "RSE",
+    "PL",
+    "E",
+    "PGH",
+]
+ignore = [
+    "PLR0913",
+    "PLR0911",
+    "PLR0914",
+    "PLR6301",
+    "PD901",
+    "E501",
+    "G004",
+    "RUF100",
+    "PGH003",
+    "PLR0911",
+    "PLR0912",
+    "COM812",
+    "ISC001",
+]
+
+[tool.ruff.format]
+quote-style = "double"
+docstring-code-format = true
+docstring-code-line-length = "dynamic"
+indent-style = "space"
+
+[tool.coverage.run]
+source = ["."]
+branch = true
+
+[tool.coverage.report]
+show_missing = true
+
+[tool.coverage.html]
+directory = "htmlcov"
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
